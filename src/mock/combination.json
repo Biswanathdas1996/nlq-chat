@@ -1,0 +1,27 @@
+[
+  {
+    "x-axis": "PrimarySalesAMT",
+    "y-axis": ["SecondarySalesAMT"],
+    "type": "Pie Chart"
+  },
+  {
+    "x-axis": "PrimarySalesQty",
+    "y-axis": ["SecondarySalesQty"],
+    "type": "Bar Chart"
+  },
+  {
+    "x-axis": "TimeKey",
+    "y-axis": ["PrimarySalesAMT", "SecondarySalesAMT"],
+    "type": "Line Chart"
+  },
+  {
+    "x-axis": "BrandID",
+    "y-axis": ["PrimarySalesAMT", "SecondarySalesAMT"],
+    "type": "Stacked Bar Chart"
+  },
+  {
+    "x-axis": "PrimarySalesQty",
+    "y-axis": ["SecondarySalesQty"],
+    "type": "Scatter Plot"
+  }
+]
