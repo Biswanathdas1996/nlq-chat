@@ -3,7 +3,7 @@ import WelcomeChatComp from "../components/WelcomeChatComp";
 import UserChat from "../components/UserChat";
 import LlmReply from "../components/LlmReply";
 import { QUERY, QUERY_MOCK } from "../config";
-
+import Loader from "../components/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../redux/store";
 import { addMessage } from "../redux/slices/chatSlices";
@@ -44,7 +44,7 @@ const Chat: React.FC = () => {
       redirect: "follow" as RequestRedirect,
     };
 
-    fetch(QUERY_MOCK, requestOptions)
+    fetch(QUERY, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
@@ -68,6 +68,13 @@ const Chat: React.FC = () => {
 
   console.log("chatHistory========>", chatHistory);
 
+  React.useEffect(() => {
+    const chatScrollHolder = document.querySelector(".chat-scrollhldr");
+    if (chatScrollHolder) {
+      chatScrollHolder.scrollTop = chatScrollHolder.scrollHeight;
+    }
+  }, [chatHistory]);
+
   return (
     <>
       <div className="chat-hldr">
@@ -76,15 +83,12 @@ const Chat: React.FC = () => {
           <div className="chat-msg">
             {chatHistory.map((chat: any, index) => {
               return chat.type === "user" ? (
-                <>
-                  <UserChat chat={chat} key={chat.id} />
-                </>
+                <UserChat chat={chat} key={chat.id} />
               ) : (
                 <LlmReply chat={chat} loading={loading} key={chat.id} />
               );
             })}
-
-            <div></div>
+            {loading && <Loader />}
           </div>
         </div>
 

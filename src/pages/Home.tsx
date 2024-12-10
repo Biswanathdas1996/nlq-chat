@@ -164,7 +164,7 @@ const Home: React.FC = () => {
           typeof responseData?.result === "number" ? (
             <div style={{ gridColumn: "span 4" }}>{responseData.result}</div>
           ) : (
-            <Table data={responseData?.result || []} />
+            <Table data={responseData?.result || []} loadingUi={false} />
           )}
           <div
             style={{ display: "flex", gridColumn: "span 4", flexWrap: "wrap" }}

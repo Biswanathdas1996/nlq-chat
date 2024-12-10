@@ -42,6 +42,10 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ data }) => {
+  if (!Array.isArray(data?.analitics)) {
+    return "Some Error Occured, switch back to table view";
+  }
+
   const [responseData, setResponseData] = useState<QueryData>(data);
 
   const getXaxisValues = (data: Record<string, any>[], item: string): any[] => {

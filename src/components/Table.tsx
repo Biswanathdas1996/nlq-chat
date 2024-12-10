@@ -3,9 +3,10 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 
 interface TableProps {
   data: any[];
+  loadingUi: boolean;
 }
 
-const Table: React.FC<TableProps> = ({ data }) => {
+const Table: React.FC<TableProps> = ({ data, loadingUi }) => {
   const columns: GridColDef[] = Object.keys(data[0] || {}).map((key) => {
     if (key === "fullName") {
       return {
@@ -48,6 +49,7 @@ const Table: React.FC<TableProps> = ({ data }) => {
                 backgroundColor: "black !important",
               },
           }}
+          loading={loadingUi}
         />
       </>
     );

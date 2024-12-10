@@ -7,9 +7,14 @@ import { updateMessage } from "../redux/slices/chatSlices";
 interface SqlUpdateProps {
   query: string;
   chatId: number;
+  setLoadingUi: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const SqlUpdate: React.FC<SqlUpdateProps> = ({ query, chatId }) => {
+const SqlUpdate: React.FC<SqlUpdateProps> = ({
+  query,
+  chatId,
+  setLoadingUi,
+}) => {
   if (!chatId) return;
 
   const dispatch = useDispatch<AppDispatch>();
@@ -18,6 +23,7 @@ const SqlUpdate: React.FC<SqlUpdateProps> = ({ query, chatId }) => {
 
   const onsubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoadingUi(true);
     const formData = new FormData(e.currentTarget);
     const getQuery = formData.get("query");
     if (getQuery) {
@@ -43,7 +49,7 @@ const SqlUpdate: React.FC<SqlUpdateProps> = ({ query, chatId }) => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
-
+        setLoadingUi(false);
         dispatch(
           updateMessage({
             chatId,
@@ -51,7 +57,10 @@ const SqlUpdate: React.FC<SqlUpdateProps> = ({ query, chatId }) => {
           })
         );
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        console.error(error);
+        setLoadingUi(false);
+      });
   };
 
   return (
