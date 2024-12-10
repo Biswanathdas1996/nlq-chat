@@ -44,7 +44,7 @@ const Chat: React.FC = () => {
       redirect: "follow" as RequestRedirect,
     };
 
-    fetch(QUERY, requestOptions)
+    fetch(QUERY_MOCK, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
@@ -68,12 +68,12 @@ const Chat: React.FC = () => {
 
   console.log("chatHistory========>", chatHistory);
 
-  React.useEffect(() => {
-    const chatScrollHolder = document.querySelector(".chat-scrollhldr");
-    if (chatScrollHolder) {
-      chatScrollHolder.scrollTop = chatScrollHolder.scrollHeight;
-    }
-  }, [chatHistory]);
+  //   React.useEffect(() => {
+  //     const chatScrollHolder = document.querySelector(".chat-scrollhldr");
+  //     if (chatScrollHolder) {
+  //       chatScrollHolder.scrollTop = chatScrollHolder.scrollHeight;
+  //     }
+  //   }, [chatHistory]);
 
   return (
     <>

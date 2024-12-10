@@ -1,10 +1,24 @@
-import React, { useEffect, useRef } from "react";
-import { Chart } from "chart.js";
-import zoomPlugin from "chartjs-plugin-zoom";
-Chart.register(zoomPlugin);
+import React from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Brush,
+  Label,
+  LineChart,
+  Line,
+} from "recharts";
+import { Card } from "@mui/material";
 
+const limit = [1000, 1000000, 1000000000, 1000000000000];
+const unit = ["K", "M", "B", "T"];
 const colors = [
-  "rgba(75,192,192,1)",
+  "#D04A02",
   "rgb(153, 102, 255)",
   "rgb(255, 205, 86)",
   "rgb(75, 192, 192)",
@@ -15,112 +29,116 @@ const colors = [
   "rgb(153, 102, 255)",
   "rgb(201, 203, 207)",
 ];
-const zoomOptions = {
-  zoom: {
-    wheel: {
-      enabled: true,
-    },
-    pinch: {
-      enabled: true,
-    },
-    mode: "xy" as const,
-    scaleMode: "xy" as const,
-  },
-  pan: {
-    enabled: true,
-    mode: "xy" as const,
-    scaleMode: "xy" as const,
-  },
-};
-type Dataset = {
-  label: string;
-  data: number[];
-  borderColor?: string;
-  backgroundColor?: string;
-  borderWidth?: number;
-  hoverBackgroundColor?: string;
-  hoverBorderColor?: string;
-};
 
-interface BarChartProps {
-  labels: string[];
-  datasets: Dataset[];
-  title: string;
-  xAxisLabel: string;
-  yAxisLabel: string;
+export function formatNumber(value: number) {
+  for (let i = limit.length - 1; i >= 0; i--) {
+    const scaled = value / limit[i];
+    if (scaled > 1) return `${scaled.toFixed(1)}${unit[i]}`;
+  }
+  return value.toFixed(1);
 }
 
-const BarChart: React.FC<BarChartProps> = ({
-  labels,
-  datasets,
-  title,
-  xAxisLabel,
-  yAxisLabel,
-}) => {
-  const chartRef = useRef<HTMLCanvasElement>(null);
-
-  const enhancedDatasets: Dataset[] = datasets.map(
-    (dataset: Dataset, index: number) => ({
-      ...dataset,
-      backgroundColor: colors[index % colors.length],
-      borderColor: colors[index % colors.length],
-      borderWidth: 1,
-      hoverBackgroundColor: "red",
-      hoverBorderColor: "red",
-    })
-  );
-
-  useEffect(() => {
-    let chartInstance: Chart | null = null;
-
-    if (chartRef.current) {
-      chartInstance = new Chart(chartRef.current, {
-        type: "bar",
-        data: {
-          labels: labels,
-          datasets: enhancedDatasets,
-        },
-        options: {
-          plugins: {
-            zoom: zoomOptions,
-            legend: {
-              position: "top",
-            },
-            title: {
-              display: true,
-              text: title,
-            },
-          },
-          scales: {
-            x: {
-              display: true,
-              title: {
-                display: true,
-                text: xAxisLabel,
-              },
-            },
-            y: {
-              display: true,
-              title: {
-                display: true,
-                text: yAxisLabel,
-              },
-              suggestedMin: 0,
-              suggestedMax: 100,
-            },
-          },
-        },
-      });
-    }
-
-    return () => {
-      if (chartInstance) {
-        chartInstance.destroy();
-      }
-    };
-  }, [labels]);
-
-  return <canvas ref={chartRef} style={{ height: "300px", width: "300px" }} />;
+// Define the data type for better type safety
+type ChartData = {
+  name: string;
+  Sales: number;
+  Revenue: number;
 };
 
-export default BarChart;
+type MyBarChartProps = {
+  chatData: any;
+  chartConfig: any;
+};
+
+const MyBarChart: React.FC<MyBarChartProps> = ({ chatData, chartConfig }) => {
+  console.log("Bar chart data----------->", chatData, chartConfig);
+
+  type DataType = {
+    [key: string]: any;
+  };
+
+  type ConfigType = {
+    "x-axis": string;
+    "y-axis": string[];
+  };
+
+  function groupAndSumData(data: DataType[], config: ConfigType) {
+    const { "x-axis": xAxis, "y-axis": yAxis } = config;
+
+    // Group data by x-axis key
+    const groupedData = data.reduce((acc, item) => {
+      const key = item[xAxis];
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      acc[key].push(item);
+      return acc;
+    }, {} as { [key: string]: DataType[] });
+
+    // Sum the y-axis values for each group
+    const result = Object.entries(groupedData).map(([groupKey, items]) => {
+      const yAxisSums = yAxis.reduce((sumAcc, yKey) => {
+        sumAcc[yKey] = items.reduce(
+          (sum: number, item: DataType) => sum + (item[yKey] || 0),
+          0
+        );
+        return sumAcc;
+      }, {} as { [key: string]: number });
+
+      return {
+        [xAxis]: groupKey,
+        ...yAxisSums,
+      };
+    });
+
+    return result;
+  }
+
+  console.log(
+    "magic result=======>",
+    groupAndSumData(chatData?.result, chartConfig)
+  );
+
+  return (
+    <Card style={{ padding: 10, margin: 10 }}>
+      <ResponsiveContainer width={300} height={300}>
+        <BarChart data={groupAndSumData(chatData?.result, chartConfig)}>
+          <CartesianGrid strokeDasharray="3 3" />
+
+          <XAxis
+            stroke="var(--textColor)"
+            dataKey={chartConfig["x-axis"]}
+            tick={{ fontSize: 8 }}
+          >
+            {/* <Label
+              value={chartConfig["x-axis"]}
+              offset={-5}
+              position="insideBottom"
+            /> */}
+          </XAxis>
+          <YAxis
+            stroke="var(--textColor)"
+            // tickFormatter={formatNumber}
+            tick={{ fontSize: 10 }}
+          >
+            <Label
+              value={`X Axis =  ${chartConfig["x-axis"]}`}
+              angle={90}
+              position="insideLeft"
+            />
+          </YAxis>
+          <Tooltip />
+          <Legend style={{ marginTop: 20 }} />
+
+          {chartConfig["y-axis"].map((valueKey: any, index: number) => (
+            <Bar key={index} dataKey={valueKey} fill={colors[index]} />
+          ))}
+
+          {/* <Brush dataKey="x" height={30} stroke="#8884d8" /> */}
+        </BarChart>
+      </ResponsiveContainer>
+    </Card>
+  );
+};
+
+export default MyBarChart;

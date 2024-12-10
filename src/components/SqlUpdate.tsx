@@ -1,7 +1,7 @@
 import React from "react";
 import { EXICUTE_QUERY } from "../config";
-import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "../redux/store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../redux/store";
 import { updateMessage } from "../redux/slices/chatSlices";
 
 interface SqlUpdateProps {

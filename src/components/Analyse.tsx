@@ -4,13 +4,23 @@ import BarChart from "./BarChart";
 import PirChart from "./PirChart";
 import RadarChart from "./RadarChart";
 import Table from "./Table";
-import { Chart } from "chart.js";
-import { registerables } from "chart.js/auto";
+
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
 import { QueryData } from "../types/LLM";
+import { ANALITICS } from "../config";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../redux/store";
+import { addAnalitics } from "../redux/slices/chatSlices";
+
+import { Chart } from "chart.js";
+import { registerables } from "chart.js/auto";
+import zoomPlugin from "chartjs-plugin-zoom";
+
+Chart.register(zoomPlugin);
+Chart.register(...registerables);
 
 const chartMap = [
   {
@@ -23,30 +33,64 @@ const chartMap = [
   },
   {
     type: "Pie Chart",
-    component: PirChart,
+    component: LineChart,
   },
   {
     type: "Stacked Bar Chart",
-    component: RadarChart,
+    component: BarChart,
   },
   {
     type: "Scatter Plot",
-    component: RadarChart,
+    component: BarChart,
   },
 ];
 
-Chart.register(...registerables);
-
 interface HomeProps {
   data: QueryData;
+  chatId: number;
 }
 
-const Home: React.FC<HomeProps> = ({ data }) => {
-  if (!Array.isArray(data?.analitics)) {
-    return "Some Error Occured, switch back to table view";
-  }
+const Home: React.FC<HomeProps> = ({ data, chatId }) => {
+  // if (!Array.isArray(data?.analitics)) {
+  //   return "Some Error Occured, switch back to table view";
+  // }
 
-  const [responseData, setResponseData] = useState<QueryData>(data);
+  const dispatch = useDispatch<AppDispatch>();
+  const chatHistory = useSelector((state: RootState) => state.chat.value);
+
+  const chatData: any = chatHistory.find((chat) => chat.id === chatId);
+
+  // console.log("chatData======>", chatData);
+  const allData = chatData?.message?.result;
+
+  React.useEffect(() => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      result_json: chatData?.message?.result,
+    });
+
+    const requestOptions: RequestInit = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow" as RequestRedirect,
+    };
+
+    fetch(ANALITICS, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        dispatch(
+          addAnalitics({
+            chatId,
+            analitics: result?.analitics,
+          })
+        );
+      })
+      .catch((error) => console.error(error));
+  }, []);
 
   const getXaxisValues = (data: Record<string, any>[], item: string): any[] => {
     const groupedValues: Record<string, number> = {};
@@ -103,8 +147,8 @@ const Home: React.FC<HomeProps> = ({ data }) => {
   };
 
   const chartData = generateChartData(
-    Array.isArray(responseData?.result) ? responseData.result : [],
-    responseData?.analitics || []
+    Array.isArray(data?.result) ? data.result : [],
+    data?.analitics || []
   );
 
   const getChartComponent = (type: string): React.FC<any> | null => {
@@ -114,30 +158,20 @@ const Home: React.FC<HomeProps> = ({ data }) => {
 
   return (
     <div>
-      {responseData && (
+      {data && (
         <>
           <div
             style={{ display: "flex", gridColumn: "span 4", flexWrap: "wrap" }}
           >
-            {chartData?.map((chart, index) => {
-              // console.log("============>", chart);
-              return (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card style={{ padding: "10px", margin: "10px" }}>
-                    {getChartComponent(chart.type) &&
-                      React.createElement(
-                        getChartComponent(chart.type) as React.FC<any>,
-                        {
-                          labels: chart.data.labels.map(String),
-                          datasets: chart.data.datasets,
-                          title: chart.type,
-                          xAxisLabel: chart.data.datasets[0].xAxisLabel,
-                          yAxisLabel: chart.data.datasets[0].yAxisLabel,
-                        }
-                      )}
-                  </Card>
-                </Grid>
-              );
+            {data?.analitics?.map((chart, index) => {
+              const ChartComponent = getChartComponent(chart.type);
+              return ChartComponent ? (
+                <ChartComponent
+                  key={index}
+                  chatData={chatData?.message}
+                  chartConfig={chart}
+                />
+              ) : null;
             })}
           </div>
         </>

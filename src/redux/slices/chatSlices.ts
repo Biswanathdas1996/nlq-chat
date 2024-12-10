@@ -1,4 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Analitics } from "../../types/LLM";
+
 interface ChatMessage {
   id: number;
   type: string;
@@ -52,8 +54,32 @@ const chatSlice = createSlice({
       });
       localStorage.setItem("chatData", JSON.stringify(state.value));
     },
+    addAnalitics: (
+      state,
+      action: PayloadAction<{
+        chatId: number;
+        analitics: Analitics[];
+      }>
+    ) => {
+      const { chatId, analitics } = action.payload;
+      state.value = state.value.map((item) => {
+        if (item.id === chatId) {
+          return {
+            ...item,
+            message: {
+              ...(typeof item.message === "object" && item.message !== null
+                ? item.message
+                : {}),
+              analitics: analitics,
+            },
+          };
+        }
+        return item;
+      });
+      localStorage.setItem("chatData", JSON.stringify(state.value));
+    },
   },
 });
 
-export const { addMessage, updateMessage } = chatSlice.actions;
+export const { addMessage, updateMessage, addAnalitics } = chatSlice.actions;
 export default chatSlice.reducer;
