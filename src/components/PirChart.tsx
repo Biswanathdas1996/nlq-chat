@@ -1,72 +1,95 @@
-import React, { useEffect, useRef } from "react";
-import { Chart } from "chart.js";
+import React from "react";
+import {
+  PieChart,
+  Pie,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell,
+} from "recharts";
 
-const colors = [
-  "rgba(75,192,192,1)",
-  "rgb(153, 102, 255)",
-  "rgb(255, 205, 86)",
-  "rgb(75, 192, 192)",
-  "rgb(255, 99, 132)",
-  "rgb(54, 162, 235)",
-  "rgb(255, 159, 64)",
-  "rgb(255, 205, 86)",
-  "rgb(153, 102, 255)",
-  "rgb(201, 203, 207)",
-];
+import { colors } from "../config";
 
-type Dataset = {
-  label: string;
-  data: number[];
-  backgroundColor?: string[];
-  hoverBackgroundColor?: string[];
+type ChartData = {
+  name: string;
+  value: number;
 };
 
-interface PieChartProps {
-  labels: string[];
-  datasets: Dataset[];
-  title: string;
-}
+type MyPieChartProps = {
+  chatData: any;
+  chartConfig: any;
+};
 
-const PieChart: React.FC<PieChartProps> = ({ labels, datasets, title }) => {
-  const chartRef = useRef<HTMLCanvasElement>(null);
+const MyPieChart: React.FC<MyPieChartProps> = ({ chatData, chartConfig }) => {
+  console.log("Pie chart data----------->", chatData, chartConfig);
 
-  const enhancedDatasets: Dataset[] = datasets.map((dataset: Dataset) => ({
-    ...dataset,
-    backgroundColor: colors,
-    hoverBackgroundColor: colors.map((color) => "red"),
-  }));
+  type DataType = {
+    [key: string]: any;
+  };
 
-  useEffect(() => {
-    let chartInstance: Chart | null = null;
-    if (chartRef.current) {
-      chartInstance = new Chart(chartRef.current, {
-        type: "pie",
-        data: {
-          labels: labels,
-          datasets: enhancedDatasets,
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "top",
-            },
-            title: {
-              display: true,
-              text: title,
-            },
-          },
-        },
-      });
-    }
-    return () => {
-      if (chartInstance) {
-        chartInstance.destroy();
+  type ConfigType = {
+    "x-axis": string;
+    "y-axis": string[];
+  };
+
+  function groupAndSumData(data: DataType[], config: ConfigType) {
+    const { "x-axis": xAxis, "y-axis": yAxis } = config;
+
+    // Group data by x-axis key
+    const groupedData = data.reduce((acc, item) => {
+      const key = item[xAxis];
+      if (!acc[key]) {
+        acc[key] = [];
       }
-    };
-  }, [labels, datasets, title]);
+      acc[key].push(item);
+      return acc;
+    }, {} as { [key: string]: DataType[] });
 
-  return <canvas ref={chartRef} style={{ height: "300px", width: "300px" }} />;
+    // Sum the y-axis values for each group
+    const result = Object.entries(groupedData).map(([groupKey, items]) => {
+      const yAxisSums = yAxis.reduce((sumAcc, yKey) => {
+        sumAcc[yKey] = items.reduce(
+          (sum: number, item: DataType) => sum + (item[yKey] || 0),
+          0
+        );
+        return sumAcc;
+      }, {} as { [key: string]: number });
+
+      return {
+        name: groupKey,
+        value: yAxisSums[yAxis[0]], // Assuming only one y-axis value for PieChart
+      };
+    });
+
+    return result;
+  }
+
+  const pieData = groupAndSumData(chatData?.result, chartConfig);
+
+  console.log("magic result=======>", pieData);
+
+  return (
+    <ResponsiveContainer width={300} height={300}>
+      <PieChart>
+        <Pie
+          data={pieData}
+          dataKey="value"
+          nameKey="name"
+          cx="50%"
+          cy="50%"
+          outerRadius={100}
+          fill="#8884d8"
+          label
+        >
+          {pieData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend verticalAlign="top" height={36} />
+      </PieChart>
+    </ResponsiveContainer>
+  );
 };
 
-export default PieChart;
+export default MyPieChart;

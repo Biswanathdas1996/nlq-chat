@@ -2,7 +2,7 @@ import React from "react";
 import WelcomeChatComp from "../components/WelcomeChatComp";
 import UserChat from "../components/UserChat";
 import LlmReply from "../components/LlmReply";
-import { QUERY, QUERY_MOCK } from "../config";
+import { QUERY } from "../config";
 import Loader from "../components/Loader";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../redux/store";
@@ -44,7 +44,7 @@ const Chat: React.FC = () => {
       redirect: "follow" as RequestRedirect,
     };
 
-    fetch(QUERY_MOCK, requestOptions)
+    fetch(QUERY, requestOptions)
       .then((response) => response.json())
       .then((result) => {
         console.log(result);

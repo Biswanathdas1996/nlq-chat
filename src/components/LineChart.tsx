@@ -14,21 +14,10 @@ import {
   Line,
 } from "recharts";
 import { Card } from "@mui/material";
+import { colors } from "../config";
 
 const limit = [1000, 1000000, 1000000000, 1000000000000];
 const unit = ["K", "M", "B", "T"];
-const colors = [
-  "#D04A02",
-  "rgb(153, 102, 255)",
-  "rgb(255, 205, 86)",
-  "rgb(75, 192, 192)",
-  "rgb(255, 99, 132)",
-  "rgb(54, 162, 235)",
-  "rgb(255, 159, 64)",
-  "rgb(255, 205, 86)",
-  "rgb(153, 102, 255)",
-  "rgb(201, 203, 207)",
-];
 
 export function formatNumber(value: number) {
   for (let i = limit.length - 1; i >= 0; i--) {
@@ -100,44 +89,36 @@ const MyBarChart: React.FC<MyBarChartProps> = ({ chatData, chartConfig }) => {
   );
 
   return (
-    <Card style={{ padding: 10, margin: 10 }}>
-      <ResponsiveContainer width={300} height={300}>
-        <LineChart data={groupAndSumData(chatData?.result, chartConfig)}>
-          <CartesianGrid strokeDasharray="3 3" />
+    <ResponsiveContainer width={300} height={300}>
+      <LineChart data={groupAndSumData(chatData?.result, chartConfig)}>
+        <CartesianGrid strokeDasharray="3 3" />
 
-          <XAxis
-            stroke="var(--textColor)"
-            dataKey={chartConfig["x-axis"]}
-            tick={{ fontSize: 8 }}
-          >
-            {/* <Label
-              value={chartConfig["x-axis"]}
-              offset={-5}
-              position="insideBottom"
-            /> */}
-          </XAxis>
-          <YAxis
-            stroke="var(--textColor)"
-            // tickFormatter={formatNumber}
-            tick={{ fontSize: 10 }}
-          >
-            <Label
-              value={`X Axis =  ${chartConfig["x-axis"]}`}
-              angle={90}
-              position="insideLeft"
-            />
-          </YAxis>
-          <Tooltip />
-          <Legend style={{ marginTop: 20 }} />
+        <XAxis
+          stroke="var(--textColor)"
+          dataKey={chartConfig["x-axis"]}
+          tick={{ fontSize: 8 }}
+        >
+          <Label
+            value={`${chartConfig["x-axis"]}`}
+            offset={-5}
+            position="insideBottom"
+          />
+        </XAxis>
+        <YAxis
+          stroke="var(--textColor)"
+          // tickFormatter={formatNumber}
+          tick={{ fontSize: 10 }}
+        ></YAxis>
+        <Tooltip />
+        <Legend verticalAlign="top" height={36} />
 
-          {chartConfig["y-axis"].map((valueKey: any, index: number) => (
-            <Line key={index} dataKey={valueKey} fill={colors[index]} />
-          ))}
+        {chartConfig["y-axis"].map((valueKey: any, index: number) => (
+          <Line key={index} dataKey={valueKey} fill={colors[index]} />
+        ))}
 
-          {/* <Brush dataKey="x" height={30} stroke="#8884d8" /> */}
-        </LineChart>
-      </ResponsiveContainer>
-    </Card>
+        {/* <Brush dataKey="x" height={30} stroke="#8884d8" /> */}
+      </LineChart>
+    </ResponsiveContainer>
   );
 };
 

@@ -3,57 +3,90 @@ import LineChart from "./LineChart";
 import BarChart from "./BarChart";
 import PirChart from "./PirChart";
 import RadarChart from "./RadarChart";
-import Table from "./Table";
-
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Card from "@mui/material/Card";
-import Grid from "@mui/material/Grid";
 import { QueryData } from "../types/LLM";
 import { ANALITICS } from "../config";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../redux/store";
 import { addAnalitics } from "../redux/slices/chatSlices";
+import { Card } from "@mui/material";
+import ChartSwitch from "./ChartSwitch";
 
-import { Chart } from "chart.js";
-import { registerables } from "chart.js/auto";
-import zoomPlugin from "chartjs-plugin-zoom";
-
-Chart.register(zoomPlugin);
-Chart.register(...registerables);
-
-const chartMap = [
-  {
-    type: "Line Chart",
-    component: LineChart,
-  },
-  {
-    type: "Bar Chart",
-    component: BarChart,
-  },
-  {
-    type: "Pie Chart",
-    component: LineChart,
-  },
-  {
-    type: "Stacked Bar Chart",
-    component: BarChart,
-  },
-  {
-    type: "Scatter Plot",
-    component: BarChart,
-  },
-];
+import { Button } from "@mui/material";
+import html2canvas from "html2canvas";
 
 interface HomeProps {
   data: QueryData;
   chatId: number;
 }
 
+const DynamicChart: React.FC<any> = ({ index, chatData, chartConfig }) => {
+  const [chartView, setChartView] = useState<any>(chartConfig.type);
+
+  const chartMaps = [
+    {
+      type: "Line Chart",
+      component: LineChart,
+    },
+    {
+      type: "Bar Chart",
+      component: BarChart,
+    },
+    {
+      type: "Pie Chart",
+      component: PirChart,
+    },
+    {
+      type: "Stacked Bar Chart",
+      component: BarChart,
+    },
+    {
+      type: "Scatter Plot",
+      component: RadarChart,
+    },
+  ];
+
+  const getChartComponent = (type: string): React.FC<any> | null => {
+    const chart = chartMaps.find((chartMap) => chartMap.type === type);
+    return chart ? chart.component : BarChart;
+  };
+  const ChartComponent = getChartComponent(chartView);
+
+  const downloadChartAsImage = () => {
+    const chartElement = document.querySelector(`#chart-${index}`);
+    if (chartElement) {
+      html2canvas(chartElement as HTMLElement).then(
+        (canvas: HTMLCanvasElement) => {
+          const link = document.createElement("a");
+          link.download = `chart-${index}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        }
+      );
+    }
+  };
+  return ChartComponent ? (
+    <Card style={{ padding: 10, margin: 10 }}>
+      <ChartSwitch
+        setChartView={setChartView}
+        defaultType={chartView}
+        downloadChartAsImage={downloadChartAsImage}
+      />
+
+      <div id={`chart-${index}`}>
+        <ChartComponent
+          key={index}
+          chatData={chatData?.message}
+          chartConfig={chartConfig}
+        />
+      </div>
+    </Card>
+  ) : null;
+};
+
 const Home: React.FC<HomeProps> = ({ data, chatId }) => {
-  // if (!Array.isArray(data?.analitics)) {
-  //   return "Some Error Occured, switch back to table view";
-  // }
+  if (!chatId) {
+    return "Some Error Occured, switch back to table view";
+  }
 
   const dispatch = useDispatch<AppDispatch>();
   const chatHistory = useSelector((state: RootState) => state.chat.value);
@@ -63,6 +96,28 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
   // console.log("chatData======>", chatData);
   const allData = chatData?.message?.result;
 
+  interface RequestOptions extends RequestInit {
+    body: string;
+  }
+
+  interface AnaliticsResult {
+    analitics: any;
+  }
+
+  const fetchAnaliticsData = (requestOptions: RequestOptions): void => {
+    fetch(ANALITICS, requestOptions)
+      .then((response) => response.json())
+      .then((result: AnaliticsResult) => {
+        console.log(result);
+        dispatch(
+          addAnalitics({
+            chatId,
+            analitics: result?.analitics,
+          })
+        );
+      })
+      .catch((error: Error) => console.error(error));
+  };
   React.useEffect(() => {
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -77,84 +132,10 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
       body: raw,
       redirect: "follow" as RequestRedirect,
     };
-
-    fetch(ANALITICS, requestOptions)
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result);
-        dispatch(
-          addAnalitics({
-            chatId,
-            analitics: result?.analitics,
-          })
-        );
-      })
-      .catch((error) => console.error(error));
+    if (!data?.analitics) {
+      fetchAnaliticsData(requestOptions as RequestOptions);
+    }
   }, []);
-
-  const getXaxisValues = (data: Record<string, any>[], item: string): any[] => {
-    const groupedValues: Record<string, number> = {};
-
-    data.forEach((dataItem) => {
-      const key = dataItem[item];
-      //   console.log("key============>", key, item);
-      if (groupedValues[key]) {
-        groupedValues[key] += 1;
-      } else {
-        groupedValues[key] = 1;
-      }
-    });
-    return Object.values(groupedValues);
-  };
-
-  const getYaxisValues = (
-    data: Record<string, any>[],
-    item: string
-  ): number[] => {
-    return data.map((dataItem) => {
-      if (typeof dataItem[item] === "string") {
-        return dataItem[item].slice(0, 10);
-      } else {
-        return dataItem[item];
-      }
-    });
-  };
-
-  const generateChartData = (
-    data: Record<string, any>[],
-    analitics: { "x-axis": string; "y-axis": string[]; type: string }[]
-  ) => {
-    if (analitics.length > 0)
-      return analitics?.map((combination) => {
-        const xAxisValues = getXaxisValues(data, combination["x-axis"]);
-        const datasets = combination["y-axis"].map((yAxis, i) => {
-          return {
-            label: yAxis,
-            data: getYaxisValues(data, combination["y-axis"][i]),
-            xAxisLabel: combination["x-axis"],
-            yAxisLabel: yAxis,
-          };
-        });
-
-        return {
-          type: combination.type,
-          data: {
-            labels: xAxisValues,
-            datasets: datasets,
-          },
-        };
-      });
-  };
-
-  const chartData = generateChartData(
-    Array.isArray(data?.result) ? data.result : [],
-    data?.analitics || []
-  );
-
-  const getChartComponent = (type: string): React.FC<any> | null => {
-    const chart = chartMap.find((chart) => chart.type === type);
-    return chart ? chart.component : null;
-  };
 
   return (
     <div>
@@ -164,14 +145,14 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
             style={{ display: "flex", gridColumn: "span 4", flexWrap: "wrap" }}
           >
             {data?.analitics?.map((chart, index) => {
-              const ChartComponent = getChartComponent(chart.type);
-              return ChartComponent ? (
-                <ChartComponent
+              return (
+                <DynamicChart
                   key={index}
-                  chatData={chatData?.message}
+                  index={index}
+                  chatData={chatData}
                   chartConfig={chart}
                 />
-              ) : null;
+              );
             })}
           </div>
         </>
