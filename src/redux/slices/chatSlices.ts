@@ -47,6 +47,7 @@ const chatSlice = createSlice({
                 : {}),
               result: result.result,
               query: result.query,
+              analitics: null,
             },
           };
         }
@@ -78,8 +79,34 @@ const chatSlice = createSlice({
       });
       localStorage.setItem("chatData", JSON.stringify(state.value));
     },
+    updateResult: (
+      state,
+      action: PayloadAction<{
+        chatId: number;
+        result: any;
+      }>
+    ) => {
+      const { chatId, result } = action.payload;
+      state.value = state.value.map((item) => {
+        if (item.id === chatId) {
+          return {
+            ...item,
+            message: {
+              ...(typeof item.message === "object" && item.message !== null
+                ? item.message
+                : {}),
+              result: result,
+              analitics: null,
+            },
+          };
+        }
+        return item;
+      });
+      localStorage.setItem("chatData", JSON.stringify(state.value));
+    },
   },
 });
 
-export const { addMessage, updateMessage, addAnalitics } = chatSlice.actions;
+export const { addMessage, updateMessage, addAnalitics, updateResult } =
+  chatSlice.actions;
 export default chatSlice.reducer;

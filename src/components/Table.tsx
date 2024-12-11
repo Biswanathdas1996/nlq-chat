@@ -1,12 +1,18 @@
 import * as React from "react";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../redux/store";
+import { updateResult } from "../redux/slices/chatSlices";
 
 interface TableProps {
   data: any[];
   loadingUi: boolean;
+  chatId: number;
 }
 
-const Table: React.FC<TableProps> = ({ data, loadingUi }) => {
+const Table: React.FC<TableProps> = ({ data, loadingUi, chatId }) => {
+  const dispatch = useDispatch<AppDispatch>();
+
   const columns: GridColDef[] = Object.keys(data[0] || {}).map((key) => {
     if (key === "fullName") {
       return {
@@ -27,6 +33,27 @@ const Table: React.FC<TableProps> = ({ data, loadingUi }) => {
   const rows = data.map((item, index) => {
     return { id: index, ...item };
   });
+
+  const handleDeleteColumn = (fields: any) => {
+    console.log("======>", fields, data);
+    const fieldsData = Object.keys(fields);
+
+    const updatedData = data.map((item) => {
+      const newItem = { ...item };
+      fieldsData.forEach((field: string) => {
+        delete newItem[field];
+      });
+      return newItem;
+    });
+    dispatch(
+      updateResult({
+        chatId,
+        result: updatedData,
+      })
+    );
+    console.log("Updated Data: ", updatedData);
+    // chatId;
+  };
 
   if (data.length !== 0) {
     return (
@@ -50,6 +77,9 @@ const Table: React.FC<TableProps> = ({ data, loadingUi }) => {
               },
           }}
           loading={loadingUi}
+          onColumnVisibilityModelChange={(params) => {
+            handleDeleteColumn(params);
+          }}
         />
       </>
     );

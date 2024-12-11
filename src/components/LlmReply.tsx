@@ -114,6 +114,7 @@ const LlmReply: React.FC<LlmReplyProps> = ({ chat }) => {
                         Array.isArray(message?.result) ? message.result : []
                       }
                       loadingUi={loadingUi}
+                      chatId={id}
                     />
                   </>
                 )}

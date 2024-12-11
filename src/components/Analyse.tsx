@@ -10,7 +10,7 @@ import { AppDispatch, RootState } from "../redux/store";
 import { addAnalitics } from "../redux/slices/chatSlices";
 import { Card } from "@mui/material";
 import ChartSwitch from "./ChartSwitch";
-
+import Loader from "./Loader";
 import { Button } from "@mui/material";
 import html2canvas from "html2canvas";
 
@@ -87,7 +87,7 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
   if (!chatId) {
     return "Some Error Occured, switch back to table view";
   }
-
+  const [loading, setLoading] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const chatHistory = useSelector((state: RootState) => state.chat.value);
 
@@ -104,17 +104,24 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
   }
 
   const fetchAnaliticsData = (requestOptions: RequestOptions): void => {
+    setLoading(true);
     fetch(ANALITICS, requestOptions)
       .then((response) => response.json())
       .then((result: AnaliticsResult) => {
-        dispatch(
-          addAnalitics({
-            chatId,
-            analitics: result?.analitics,
-          })
-        );
+        setLoading(false);
+        if (result?.analitics && typeof result.analitics === "object") {
+          dispatch(
+            addAnalitics({
+              chatId,
+              analitics: result.analitics,
+            })
+          );
+        }
       })
-      .catch((error: Error) => console.error(error));
+      .catch((error: Error) => {
+        setLoading(false);
+        console.error(error);
+      });
   };
   React.useEffect(() => {
     const myHeaders = new Headers();
@@ -155,6 +162,7 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
           </div>
         </>
       )}
+      {loading && <Loader showIcon={false} />}
     </div>
   );
 };
