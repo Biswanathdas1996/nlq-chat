@@ -29,7 +29,6 @@ const SqlUpdate: React.FC<SqlUpdateProps> = ({
     if (getQuery) {
       setSqlQuery(getQuery.toString());
     }
-    console.log("query", query);
 
     const myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
@@ -48,7 +47,6 @@ const SqlUpdate: React.FC<SqlUpdateProps> = ({
     fetch(EXICUTE_QUERY, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
         setLoadingUi(false);
         dispatch(
           updateMessage({

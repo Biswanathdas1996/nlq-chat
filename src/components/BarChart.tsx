@@ -40,8 +40,6 @@ type MyBarChartProps = {
 };
 
 const MyBarChart: React.FC<MyBarChartProps> = ({ chatData, chartConfig }) => {
-  console.log("Bar chart data----------->", chatData, chartConfig);
-
   type DataType = {
     [key: string]: any;
   };
@@ -82,11 +80,6 @@ const MyBarChart: React.FC<MyBarChartProps> = ({ chatData, chartConfig }) => {
 
     return result;
   }
-
-  console.log(
-    "magic result=======>",
-    groupAndSumData(chatData?.result, chartConfig)
-  );
 
   return (
     <ResponsiveContainer width={300} height={300}>

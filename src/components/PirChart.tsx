@@ -21,8 +21,6 @@ type MyPieChartProps = {
 };
 
 const MyPieChart: React.FC<MyPieChartProps> = ({ chatData, chartConfig }) => {
-  console.log("Pie chart data----------->", chatData, chartConfig);
-
   type DataType = {
     [key: string]: any;
   };
@@ -65,8 +63,6 @@ const MyPieChart: React.FC<MyPieChartProps> = ({ chatData, chartConfig }) => {
   }
 
   const pieData = groupAndSumData(chatData?.result, chartConfig);
-
-  console.log("magic result=======>", pieData);
 
   return (
     <ResponsiveContainer width={300} height={300}>

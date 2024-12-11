@@ -93,7 +93,6 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
 
   const chatData: any = chatHistory.find((chat) => chat.id === chatId);
 
-  // console.log("chatData======>", chatData);
   const allData = chatData?.message?.result;
 
   interface RequestOptions extends RequestInit {
@@ -108,7 +107,6 @@ const Home: React.FC<HomeProps> = ({ data, chatId }) => {
     fetch(ANALITICS, requestOptions)
       .then((response) => response.json())
       .then((result: AnaliticsResult) => {
-        console.log(result);
         dispatch(
           addAnalitics({
             chatId,

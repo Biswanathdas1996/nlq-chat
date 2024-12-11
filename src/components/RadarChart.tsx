@@ -27,8 +27,6 @@ const MyRadarChart: React.FC<MyRadarChartProps> = ({
   chatData,
   chartConfig,
 }) => {
-  console.log("Radar chart data----------->", chatData, chartConfig);
-
   type DataType = {
     [key: string]: any;
   };
@@ -71,8 +69,6 @@ const MyRadarChart: React.FC<MyRadarChartProps> = ({
   }
 
   const radarData = groupAndSumData(chatData?.result, chartConfig);
-
-  console.log("magic result=======>", radarData);
 
   return (
     <ResponsiveContainer width={300} height={300}>

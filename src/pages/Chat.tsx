@@ -47,8 +47,6 @@ const Chat: React.FC = () => {
     fetch(QUERY, requestOptions)
       .then((response) => response.json())
       .then((result) => {
-        console.log(result);
-
         dispatch(
           addMessage({
             id: new Date().getTime(),
@@ -65,8 +63,6 @@ const Chat: React.FC = () => {
         setLoading(false);
       });
   };
-
-  console.log("chatHistory========>", chatHistory);
 
   //   React.useEffect(() => {
   //     const chatScrollHolder = document.querySelector(".chat-scrollhldr");
