@@ -81,7 +81,12 @@ const Chat: React.FC = () => {
               return chat.type === "user" ? (
                 <UserChat chat={chat} key={chat.id} />
               ) : (
-                <LlmReply chat={chat} loading={loading} key={chat.id} />
+                <LlmReply
+                  chat={chat}
+                  loading={loading}
+                  key={chat.id}
+                  userQuestion={chatHistory[index - 1]}
+                />
               );
             })}
             {loading && <Loader />}
