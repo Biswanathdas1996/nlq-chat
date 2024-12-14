@@ -51,6 +51,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <div className="button-decoration"></div>
               </button>
             </a>
+            <a className="nav-link" href="/#/upload">
+              <button className="sidenav-button">
+                <img
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAYAAACohjseAAAAAXNSR0IArs4c6QAABClJREFUaAXtmrtuE0EUhmfHeYCIJ0C8Qd7AaZB3HSQ39EmfIl1K8gIkbqnsgj6uoUgqKGcNEgIBcoiQgKDIkYKQIiEt+mdzNvZ69jI3e5FYaTze2bmcb86ZM5ddxhxfos3WRYe1Rcj24ogP4jAQcRhM4ogncwFpYXASh8Ex8qKMY1HcVSehQtaTAkfBdA4kD1Z6H0wlcIdtu5POoiaAjTvsSWwFldMsdUCq9YHosPsWIpoV9QpGgDMxOnFpoOIh63nR2AyQ0sTDYCJ8mq7UWsiOlI1XCefw+TjkR5DFzPYKSsE8pDd0KKhVR6XadDM2b+EW3fyqYV1AuoZ7+/hecj0+Sa5ejRL8t9IiOtgG0gfc789xQhf+rwwSg1i5+jA0S4AQ3J9f0wQBl0NIoeV4xg69ZR7uw+5GguAaEt61wEfOJ2OusR4bt5pWwVHdPiAxR8/T5O5cjrsyOG+QcDplc2S6rixYG2qMvzpwviBFxA9yektvpfY0IEjAfKwDR2Udm+tUqUUR8iE1aBqbwFFbLiGVWrSdFmzgPEDOa9HWc7qAcw0551FFFIyoAd3YJRy17cRcw+AkczZxlxsdM/iAcwiZmikOe6hSndgnHMlhq0l5kCW6HKdfWiv7ZcCRTDaQIuR7THf8LRPOAeSApUd99TWIvRwuLJbRuySEjxidSfXOavL6zWmWTs8LYsFExM8KHioruRj1F+De7TxIvhzuKPPr1J3P++35QXL+dDurF5A3P86Sn6N+lpYvk7ufsFxC3YJZPsChUQhjW1e+POrENQuZz1N1bw14+XIohfAJePliYNx5/wGrTKBMg+93N+QhEw6aqoLKYZGJWmlQ18nkgcsAP+5vSvOt8/Npf3PBDB0AwskEIi+0zn0dQEwp54c7ykBnMz4ARdQ6Zbb7wDqAN98nC9qhToQHxuUFsBOMmMlSjYRD3GhAuVQzXGwTZKMBt9baTPTYuul2qeEanN7tB/GuXHNHQfmbqkGB8UeXeNTqkcC6cWMBo9bde34bM20o4ISUl8U4atPVHvITIGJM7LPh67M9OQXUmSaQd7Ys/md1669FBxkY/THVIq02ylYrdQDLyl8c194eyfkWh9jENRebaBGbUvQ0JuyiULZBxbOicki/eq33slR56EuUplo0MW1PZfAlhlp7GSS+WDKcMlZdTsx6TgJSxSLi/VULq9u+CHlfxaJMk6ZqucvQFdAyf/l7QRXl7eu05n0+sjh8qsedChBp/wCkORxBNxjSHq7BkKJyOiDh68ZwPE3wrvCWylfUdUGq8mGuiSO+fOfT5VMRtso/E6kSvu5zmIfJss5oKgBYxA+8aq0IXIKmHy+41+gqwVTAMF0RtUY2xx8oi6M+mOJKNKYCU6WJrbU2TusALAVWvMHCgbPo8lh0W0OZF2XKvlJSNVQj7S9Jw4CsiA5XgQAAAABJRU5ErkJggg=="
+                  alt="History"
+                  className="nav-icon"
+                />
+                Upload Doc.
+                <div className="button-decoration"></div>
+              </button>
+            </a>
             <a aria-current="page" className="nav-link" href="/">
               <button className="sidenav-button">
                 <img

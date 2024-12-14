@@ -9,6 +9,7 @@ import SimpleAlert from "./components/Alert";
 // -------------user stoty use case---------------
 import UserStoryGeneration from "./pages/Code/UserStoryGeneration";
 import Backlog from "./pages/Code/Backlog";
+import Upload from "./pages/Upload";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/" element={<Chat />} />
         <Route path="/query" element={<Queries />} />
         <Route path="/user-story" element={<UserStoryGeneration />} />
+        <Route path="/upload" element={<Upload />} />
         <Route path="/backlog" element={<Backlog />} />
       </Routes>
     </Layout>

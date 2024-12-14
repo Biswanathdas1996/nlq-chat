@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import WelcomeChatComp from "../../components/WelcomeChatComp";
 
 import Loader from "../../components/Loader";
@@ -11,7 +11,7 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useAlert } from "../../hook/useAlert";
 import AceEditor from "react-ace";
-
+import { CALL_GPT, SEARCH } from "../../config";
 // Import a theme and language
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/worker-javascript";
@@ -21,6 +21,9 @@ import CreateUserStory from "./components/CreateUserStory";
 import CreateTestCases from "./components/CreateTestCases";
 import CreateTestData from "./components/CreateTestData";
 
+import AutoCompleteInput from "../../components/AutoCompleteInput";
+import { useFetchCollection } from "../../hook/useFetchCollection";
+
 const Chat: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [userStory, setUserStory] = React.useState<string | null>(null);
@@ -28,10 +31,39 @@ const Chat: React.FC = () => {
   const [testData, setTestData] = React.useState<string | null>(null);
   const [code, setCode] = React.useState<string | null>(null);
   const { triggerAlert } = useAlert();
-
+  const { collections, error } = useFetchCollection();
   const [age, setAge] = React.useState("");
   const urlParams = new URLSearchParams(window.location.hash.split("?")[1]);
   const taskId = urlParams.get("task");
+  const [value, setValue] = React.useState<any>(null);
+
+  const getContext = async (query: string) => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      query: query,
+      collection_name: localStorage.getItem("selected_collection"),
+      no_of_results: 3,
+      fine_chunking: false,
+      if_gpt_summarize: false,
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow" as RequestRedirect,
+    };
+
+    return fetch(SEARCH, requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+        return result;
+      })
+      .catch((error) => error);
+  };
 
   const saveDataToLocalStorage = () => {
     const data = [
@@ -81,18 +113,15 @@ const Chat: React.FC = () => {
 
   const callGpt = async (query: string): Promise<string | null> => {
     setLoading(true);
-    const response = await fetch(
-      "http://127.0.0.1:5000/user-story-generation",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          question: query,
-        }),
-      }
-    )
+    const response = await fetch(CALL_GPT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        question: query,
+      }),
+    })
       .then((response) => response.text())
       .then((data) => {
         setLoading(false);
@@ -110,8 +139,31 @@ const Chat: React.FC = () => {
     e.preventDefault();
     const query = e.target.query.value;
     if (query.length === 0) return;
+    const contextData = await getContext(query);
+    // console.log(
+    //   "=========fine_results=========>",
+    //   contextData?.results?.fine_results
+    // );
+    // console.log(
+    //   "=========gpt_results=========>",
+    //   contextData?.results?.gpt_results
+    // );
+    // console.log(
+    //   "=========default=========>",
+    //   contextData?.results?.results?.documents
+    // );
+
+    localStorage.setItem("contextData", JSON.stringify(contextData));
+
+    const effectiveContext = JSON.stringify(
+      contextData?.results?.results?.documents
+    );
+    // const effectiveContext = contextData?.results?.gpt_results;
+    // const effectiveContext = contextData?.results?.fine_results;
     const userStorydata = await callGpt(`
-        Write an elaborate agile user story for a JIRA Ticket in Gherkin format for ${query}
+        Write an elaborate agile user story in Gherkin format for ${query}
+        Include Acceptance Criteria, Assumptions, and Dependencies
+        Context of the story should be: ${effectiveContext}
         `);
     setUserStory(userStorydata);
     userStorydata && localStorage.setItem("userStory", userStorydata);
@@ -195,6 +247,15 @@ const Chat: React.FC = () => {
     <>
       <div className="chat-hldr">
         <div className="chat-scrollhldr">
+          {collections && (
+            <div style={{ marginTop: "1rem" }}>
+              <AutoCompleteInput
+                value={value}
+                setValue={setValue}
+                collections={collections?.collections}
+              />
+            </div>
+          )}
           <WelcomeChatComp />
 
           <div className="chat-msg">
