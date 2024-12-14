@@ -62,6 +62,7 @@ const Chat: React.FC = () => {
         console.error(error);
         setLoading(false);
       });
+    (e.target as HTMLFormElement).query.value = "";
   };
 
   //   React.useEffect(() => {

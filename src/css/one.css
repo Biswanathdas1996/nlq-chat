@@ -31,6 +31,18 @@ html {
   font-family: "Open Sans", sans-serif;
 }
 
+.pre-div {
+  background: #f1f1f1;
+  padding: 15px;
+  overflow: auto;
+  border-radius: 15px;
+}
+.pre-text {
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  font-family: "Open Sans", sans-serif !important;
+}
+
 .background {
   display: flex;
   flex-direction: row;

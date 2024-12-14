@@ -61,6 +61,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 Logout
               </button>
             </a>
+            <a aria-current="page" className="nav-link" href="#/backlog">
+              <button className="sidenav-button">
+                <img
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADgAAAA4CAYAAACohjseAAAAAXNSR0IArs4c6QAAA4VJREFUaAXtm42R4jAMhVMCJVACJaQESqAEOjg6WDqADo4OSAe5DnIdUMI7XtYihtjBseXgnTnNZJyYxNZnyfLfblUpC4AVgBrAHsAJQAugw1iYdwXw27xbK6uiV5yB2hqFb2OW4Bx+S+CdnnYJJRmwXwBSoHz0tDA9YJ2gYtynmcFcwGzEZUAB0BVzWMwFZufRovlc11jty67xQ/fUYRXne56v6B4mGn6IaVQtranjsgaOBZYm6ZDacLfbDXVdY7vdgvcKEg+ZA26z2aCqqv7i/ccgTUBRc0uCCNxqtQIvgipCcrYUHngAqEXLV7i2bcErA+SXJ0Y+Z3OsUegbfREuOCk7E+T2meblSbPfTcFlhGS38rvqvWJOiZIlBE4qyWDJw4vdvh+N9aTe6HQOnFSiDMnxZ2zFO+BZKoxNY+CkLmXIsRU9i1Kp/22aAieFK0I+WzE1cmrAZYAcIiqAi1QwN9WEk7qVLHl9BJvY9V0OOEXIbzc1G0RSbnCaE06UULBkXZkdLSkzKF0CThRJhNwTcFb/WxJOAfJEQO5NBgvXclwJcLLM1s0pbEwR25JcUwZKS8C/gS/3r+33+xFc13U4nbjDpyuHwwHn8zD/IOR6vQZ1CJSOgElCOFZKZbSFZdJbbMi5dSQD7na7XomcgKwjVv4Dvmu5KQuyzzAghFyugCUummrBWUHmFXgKsGma3n1lo2kqvV7HwVwBsA8ySbE+BJBDCqOs65K9mUyADfvgEIdfzRPwHALIKOsT/kbLZgK8EDB4UHEpWThgP1ULnhb8QMB+ss0j52FO5KKYyCvYgjd7PTgOYRNQ9k8FA15sQB5qRknBgMNhqTmLiHLTQgG7h/XkBkDUbFkAmXJgt6/j8dgPASHDBN+1v+W9XfZM9zoJ1yONtaLMNqZmKSGAU9/PWB5JO7hPf2OsyEUpW5oQvmtqgcrffN8xP+KwdLzpK2aMtaI0WwHp+xNf82ciBegapcIQOcVqrvRuyWNU8Z/96OhiceYZV01aZSzMOn0u6KLUPAzNDPu+37kAmfcDIOPhBLpgyHS4giEZH9yDuSg9NzWBp4ToSh3GR9RzgXzvm8NSusfSwsXAcKjpU1Aj3/TLqMl5RKsQjHXls5qvUQwoN61yWPRzYC5g47o8iotaVxrL8tvGTBeXt5gLzJVn/VsBgamwa3OZeX/uXkAP4M4eN7/Uof4B761s+UM7AxAAAAAASUVORK5CYII="
+                  alt="Logout"
+                  className="nav-icon"
+                />
+                Backlog
+              </button>
+            </a>
           </div>
           <div className="content-container">{children}</div>
         </div>
