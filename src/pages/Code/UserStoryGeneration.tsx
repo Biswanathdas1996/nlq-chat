@@ -23,12 +23,15 @@ import CreateTestData from "./components/CreateTestData";
 
 import AutoCompleteInput from "../../components/AutoCompleteInput";
 import { useFetchCollection } from "../../hook/useFetchCollection";
+import ContextData from "./components/ContextData";
 
 const Chat: React.FC = () => {
   const [loading, setLoading] = React.useState(false);
   const [userStory, setUserStory] = React.useState<string | null>(null);
   const [testCase, setTestCase] = React.useState<string | null>(null);
   const [testData, setTestData] = React.useState<string | null>(null);
+  const [contextDataForStory, setContextDataForStory] =
+    React.useState<any>(null);
   const [code, setCode] = React.useState<string | null>(null);
   const { triggerAlert } = useAlert();
   const { collections, error } = useFetchCollection();
@@ -45,8 +48,8 @@ const Chat: React.FC = () => {
       query: query,
       collection_name: localStorage.getItem("selected_collection"),
       no_of_results: 3,
-      fine_chunking: false,
-      if_gpt_summarize: false,
+      fine_chunking: true,
+      if_gpt_summarize: true,
     });
 
     const requestOptions = {
@@ -74,6 +77,7 @@ const Chat: React.FC = () => {
         testCase,
         testData,
         code,
+        contextData: contextDataForStory,
       },
     ];
 
@@ -154,10 +158,8 @@ const Chat: React.FC = () => {
     // );
 
     localStorage.setItem("contextData", JSON.stringify(contextData));
-
-    const effectiveContext = JSON.stringify(
-      contextData?.results?.results?.documents
-    );
+    setContextDataForStory(contextData);
+    const effectiveContext = JSON.stringify(contextData?.results?.documents);
     // const effectiveContext = contextData?.results?.gpt_results;
     // const effectiveContext = contextData?.results?.fine_results;
     const userStorydata = await callGpt(`
@@ -203,6 +205,7 @@ const Chat: React.FC = () => {
     const savedTestcase = localStorage.getItem("testcase");
     const savedTestData = localStorage.getItem("testdata");
     const testCode = localStorage.getItem("code");
+    const contextDataStore = localStorage.getItem("contextData");
     if (savedUserStory) {
       setUserStory(savedUserStory);
     }
@@ -215,6 +218,9 @@ const Chat: React.FC = () => {
     if (testCode) {
       setCode(testCode);
     }
+    if (contextDataStore) {
+      setContextDataForStory(JSON.parse(contextDataStore));
+    }
   }, []);
 
   React.useEffect(() => {
@@ -226,23 +232,28 @@ const Chat: React.FC = () => {
         const task = parsedData.find(
           (item: any) => item.id.toString() == taskId
         );
-        console.log("============>", taskId, parsedData, task);
+        console.log("=======show=====>", taskId, parsedData, task);
         if (task) {
           localStorage.setItem("userStory", task.userStory);
           localStorage.setItem("testcase", task.testCase);
           localStorage.setItem("testdata", task.testData);
           localStorage.setItem("code", task.code);
+          if (task?.contextData)
+            localStorage.setItem(
+              "contextData",
+              JSON.stringify(task?.contextData)
+            );
 
           setUserStory(task.userStory);
           setTestCase(task.testCase);
           setTestData(task.testData);
           setCode(task.code);
+          setContextDataForStory(task.contextData);
         }
       }
     }
   }, []);
 
-  console.log(userStory);
   return (
     <>
       <div className="chat-hldr">
@@ -257,7 +268,7 @@ const Chat: React.FC = () => {
             </div>
           )}
           <WelcomeChatComp />
-
+          {contextDataForStory && <ContextData data={contextDataForStory} />}
           <div className="chat-msg">
             {userStory && (
               <CreateUserStory
@@ -344,7 +355,7 @@ const Chat: React.FC = () => {
                     style={{ width: "130px" }}
                     onClick={() => saveDataToLocalStorage()}
                   >
-                    {taskId ? "Update ticket" : "Create ticket"}
+                    {taskId ? "Update" : "Save"}
                     <img
                       src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAAXNSR0IArs4c6QAAAqBJREFUWAm1WLuRAjEMpQRKuAYogIyIAiiAuRgSIghhhgIoAGaOkOwIyKEDLoQcYlk0sHdvx1qMd621ObgZj9a29PQsyR+u0Uj4I6ImEY2Y+csYc2RmYubMNsKYMeabiD6J6CMBOk6ViDrGmL3jVJyr0pLqxHlRtLCqZwj4hC2h5yJkU+CGXl2977yiT8BU1l2e+gOZVgD9l4jYT8seK0beTCKOjE2HKKvyfD5n4/H4oV2vV9XGjXIwTShMbzuqoIfDIWu1Wlm3283a7Xb+jTHXWc03aqZcwKjsGsMHJ0IE0v1OwbjdbvuH6sA5kQIAXde5+52KA98FGSLaagCn0ynz2263K9IhRDabTUkPdhp2ERVbG0FlAKEWQg0khEhIp44Mro4G7gWNsRDBDsGK/YZ57BZ/HH3YgFwEkRGI1KYFYADWCFfNwSaGCC7RBjPjFg06kYhMJpPKVVdFQsZgE0nkCCLqfSJEAPhsizjoCESC0ZA52SHL5TIvTClQTUIXxGNTGkVEQCNWVixKIglbWZAma1MD4/l8nh/jAoQIDYfDkoPBYJBhTvRw9MNW+orMU6MWK4z7/X7eBGixWOR3jPRF+qmAXa/XiyFyxPZdC1BI+iuLJeJHMoTPzFsQwWM4yBp1gZXCOfKOBge4daUvEnqr1aoYhw3GMK/5wKEKIk1Nqe74hqO6BgzNR/EcwMUTUkREUIBySD0jL5eLRmTr3r7Jz4AQ8dTxh2cAGGlRSQVP0L9HQ8JinwPqcZ/gQEuFzFU/FUGobge9mIj+G4eZZy92KBFw5Uwyoco3k4kjIQxtml5ZM8DS0yHOfWkLWH3BxaTRGHMoDi3fSUrf/txIJmQJ3H8upDjVdLEq+9jeGmN+vNcd/lGDsTXSmr/MNTBv7hffBPEsHKEseQAAAABJRU5ErkJggg=="
                       alt="Clear Chat"

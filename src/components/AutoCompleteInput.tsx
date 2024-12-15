@@ -103,7 +103,15 @@ const AutoCompleteInput: React.FC<AutoCompleteInputProps> = ({
       sx={{ width: 300 }}
       freeSolo
       renderInput={(params) => (
-        <TextField {...params} label="Select or add a collection" />
+        <TextField
+          {...params}
+          label="Select or add a collection"
+          style={{
+            height: 30,
+            width: 190,
+            padding: 3,
+          }}
+        />
       )}
     />
   );
